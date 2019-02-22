@@ -43,6 +43,7 @@ def find_t_rex():
     # Match the t_rex image in the im image
     result = cv2.matchTemplate(im,t_rex,cv2.TM_CCOEFF_NORMED)
 
+    # Get the metric value of the best matching
     matching_value = result[np.unravel_index(result.argmax(), shape=result.shape)]
 
     # If debug, export the screenshot with the t_rex_position
@@ -57,12 +58,14 @@ def find_t_rex():
         im.save("pos.png", "PNG")
 
 
-    # If there's not a 95% matching, we consider that Mr T-Rex is not on the screen
+    # If this is not at least a 90% matching, we consider that Mr T-Rex is not on the screen
     if matching_value < 0.90:
         return False
 
+    # Return the top-left coordinates of the best matching
     return np.unravel_index(result.argmax(),result.shape)
 
+# Set the forward and game over boxes coordinates
 def set_boxes(t_rex_coord):
     t_rex_size = Image.open("t_rex.png").size
 
@@ -85,19 +88,26 @@ def set_boxes(t_rex_coord):
 
     return forward_box, game_over_box
 
-
-def test_screen(forward_box, game_over_box):
+# Returns the black pixel density in the forward box, or returns false
+# if the " GAME OVER " text is on screen
+def get_pixel_density(forward_box, game_over_box):
     im = ImageGrab.grab()
     region = im.crop(forward_box)
     bw = to_bw(region)
 
-    pixel_count = np.array(bw).sum() / ((forward_box[2] - forward_box[0]) * (forward_box[3] - forward_box[1]))
+    # Count the density of pixels (since we only have black or white, anything above 0 is white)
+    # white_density = nb_white / nb_total
+    white_density = np.array(bw).sum() / ((forward_box[2] - forward_box[0]) * (forward_box[3] - forward_box[1]))
 
+    # If there is some black pixels on the " GAME OVER " box, stop the game
+    # (Bug: if there is a pterodactyl passing by, it stops the game)
     if np.array(to_bw(im.crop(game_over_box))).sum() / ((game_over_box[2] - game_over_box[0]) * (game_over_box[3] - game_over_box[1])) < 1.0:
         return False
 
-    return (1 - pixel_count)
+    # return the number of black pixels (black_density = 1 - white_density)
+    return (1 - white_density)
 
+# Check when spacebar is pressed
 def on_press(key):
     if key == Key.space:
         return False
@@ -110,7 +120,7 @@ def main():
     counter = 0
     mean_var_set = False
     mean = 1
-    var = 0
+    variation = 0
 
     if DEBUG:
         print_original_boxes()
@@ -137,34 +147,38 @@ def main():
         listener.join()
 
     print('GO GO GO!')
-    while True:
-        val = test_screen(forward_box, game_over_box)
 
-        if val == False:
+    while True:
+        # Get the black pixel density
+        pixel_density = get_pixel_density(forward_box, game_over_box)
+
+        if pixel_density == False:
             break
 
-        values.append(val)
+        values.append(pixel_density)
 
-        if mean_var_set and val > mean + var:
+        # If there is a cactus on the forward box, jump!
+        if mean_var_set and pixel_density > mean + variation:
             pyautogui.press('space')
 
         counter += 1
 
+        # Set the mean and variation values for black pixels density in the forward box
         if mean_var_set == False and counter > 50:
             subvals = values[30:]
             mean = sum(subvals) / len(subvals)
-            var = abs(max(subvals)) - abs(min(subvals))
+            variation = abs(max(subvals)) - abs(min(subvals))
             mean_var_set = True
 
             if DEBUG:
-                print(f'mean and var set: {mean} / {var}')
+                print(f'mean and var set: {mean} / {variation}')
 
 
     if DEBUG:
         fig, ax = plt.subplots()
         ax.plot([x for x in range(len(values))], values)
         ax.axhline(y=mean, color='green')
-        ax.axhline(y=mean + var, color='red')
+        ax.axhline(y=mean + variation, color='red')
         ax.set(xlabel='Frame number', ylabel='Black pixel density',
            title='Black pixel density per frame')
         ax.grid()
