@@ -158,7 +158,7 @@ def main():
         values.append(pixel_density)
 
         # If there is a cactus on the forward box, jump!
-        if mean_var_set and pixel_density > mean + variation:
+        if mean_var_set and pixel_density > mean + (variation * 2):
             pyautogui.press('space')
 
         counter += 1
@@ -178,7 +178,7 @@ def main():
         fig, ax = plt.subplots()
         ax.plot([x for x in range(len(values))], values)
         ax.axhline(y=mean, color='green')
-        ax.axhline(y=mean + variation, color='red')
+        ax.axhline(y=mean + (variation * 2), color='red')
         ax.set(xlabel='Frame number', ylabel='Black pixel density',
            title='Black pixel density per frame')
         ax.grid()
