@@ -11,7 +11,7 @@ The algorithm is very simple:
 
 ### Libraries used
 * OpenCV: detection of **Mr T-Rex** position
-* pillow (PIL fork): screenshotting and detection of the catci (plural of cactus)
+* pillow (PIL fork): screenshotting and detection of the catci (plural of cactus you uneducated fuck)
 * pyautogui: automatic press on the spacebar
 * pynput: detection of the start of the game (you have to press spacebar to start)
 * matplotlib: plotting of the pixel density (debugging)
