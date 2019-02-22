@@ -18,3 +18,8 @@ The algorithm is very simple:
 
 ### Known bugs
 * Pterodactyl can trigger the algorithm's stop condition
+
+### TODO
+* Pterodactyl detection
+* Better game over detection
+* Checking of **Mr T-Rex** position tu avoid spacebar spamming (and other good side-effects)
