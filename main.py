@@ -4,7 +4,6 @@ import cv2
 # used for screenshotting and checking for cactus
 from PIL import Image, ImageGrab
 import numpy as np
-import scipy.ndimage
 
 # Used for spacebar auto press
 import pyautogui
@@ -97,7 +96,7 @@ def test_screen(forward_box, game_over_box):
     if np.array(to_bw(im.crop(game_over_box))).sum() / ((game_over_box[2] - game_over_box[0]) * (game_over_box[3] - game_over_box[1])) < 1.0:
         return False
 
-    return pixel_count
+    return (1 - pixel_count)
 
 def on_press(key):
     if key == Key.space:
@@ -109,7 +108,7 @@ def main():
 
     values = []
     counter = 0
-    mena_var_set = False
+    mean_var_set = False
     mean = 1
     var = 0
 
@@ -146,26 +145,30 @@ def main():
 
         values.append(val)
 
-        if mena_var_set and val < mean - (var * 2):
+        if mean_var_set and val > mean + var:
             pyautogui.press('space')
 
         counter += 1
 
-        if mena_var_set == False and counter > 50:
-            mean = sum(values) / len(values)
-            var = abs(max(values)) - abs(min(values))
-            mena_var_set = True
+        if mean_var_set == False and counter > 50:
+            subvals = values[30:]
+            mean = sum(subvals) / len(subvals)
+            var = abs(max(subvals)) - abs(min(subvals))
+            mean_var_set = True
 
             if DEBUG:
-                print(f'mean and val set: {mean} / {val}')
+                print(f'mean and var set: {mean} / {var}')
 
 
-    fig, ax = plt.subplots()
-    ax.plot([x for x in range(len(values))], values)
-    ax.set(xlabel='Screen capture number', ylabel='White pixel density',
-       title='White pixel density per frame')
-    ax.grid()
-    plt.show()
+    if DEBUG:
+        fig, ax = plt.subplots()
+        ax.plot([x for x in range(len(values))], values)
+        ax.axhline(y=mean, color='green')
+        ax.axhline(y=mean + var, color='red')
+        ax.set(xlabel='Frame number', ylabel='Black pixel density',
+           title='Black pixel density per frame')
+        ax.grid()
+        plt.show()
 
 if __name__ == '__main__':
     main()
