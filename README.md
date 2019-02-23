@@ -27,6 +27,7 @@ The algorithm is very simple:
 * Pterodactyl can trigger the algorithm's stop condition
 
 ### TODO
-* Pterodactyl detection
+* Pterodactyls detection
 * Better game over detection
-* Checking of **Mr T-Rex** position tu avoid spacebar spamming (and other good side-effects)
+* Checking of **Mr T-Rex** position to avoid spacebar spamming (and other good side-effects)
+* Use the crouching command for pterodactyls 
