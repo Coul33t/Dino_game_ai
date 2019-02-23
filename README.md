@@ -4,10 +4,17 @@ Smoll " AI " for the dino game http://www.trex-game.skipser.com/. It detects the
 ## How does it works?
 The algorithm is very simple: 
 1. Try to find **Mr T-Rex** on the screen. If he's not here, abort.
-2. Compute 2 zones to check for black pixels: one in front of Mr T-Rex **(A)**, one at the location of the " GAME OVER " text **(B)**.
-3. When the game starts (spacebar pressed), take screenshots at regular interval. After a certain number of frames have been captured, compute the mean value and max variation of black pixel density in **(A)**. Since there is no obstacle until a few frames, `mean + var` will be the threshold for sending our jump command (`val > mean + var`means that there's an obstacle in front of **Mr T-Rex**).
+2. Compute 2 zones to check for black pixels: one in front of Mr T-Rex **(A)**, one at the location of the " GAME OVER " text **(B)** (see *Fig.1*).
+3. When the game starts (spacebar pressed), take screenshots at regular interval. After a certain number of frames have been captured, compute the mean value and max variation of black pixel density in **(A)**. Since there is no obstacle until a few frames, `mean + var` will be the threshold for sending our jump command (`val > mean + var` means that there's an obstacle in front of **Mr T-Rex**).
 4. If the density of black pixel in **(A)** is higher than `mean + var`, send a jump command (press spacebar).
 5. If there is a high density of black pixel in **(B)**, it means that there is the " GAME OVER " text in there, and so we lost the game.
+
+<p align="center">
+<img src="t_rex_boxes.png"><br />
+  <b>Fig. 1</b>: <i>T-Rex boxes</i>.
+ </p>
+ 
+
 
 ### Libraries used
 * OpenCV: detection of **Mr T-Rex** position
